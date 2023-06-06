@@ -36,3 +36,15 @@ export const sendMessage = async (
   const data = response.json();
   return await data;
 };
+
+export const fetchMessages = async (id: string, token: string) => {
+  try {
+    const response = await fetch(
+      `https://api.green-api.com/waInstance${id}/receiveNotification/${token}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Ошибка при получении сообщений:", error);
+  }
+};

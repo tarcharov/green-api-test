@@ -1,9 +1,8 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import Messages from "./Messages";
-import bg_img from "../assets/images/dialogue_background.png";
 import { sendMessage } from "../utils/requests";
-
+import { Message } from "../utils/types";
 const Main = styled.div`
   position: relative;
   height: 100%;
@@ -28,14 +27,6 @@ const DialogueHeader = styled.div`
   height: 59px;
 `;
 
-const MessagesWrapper = styled.div`
-  display: block;
-  position: relative;
-  flex: 1 1 0;
-  order: 2;
-  background: url(${bg_img});
-`;
-
 const DialogueFooter = styled.div`
   min-height: 48px;
   order: 3;
@@ -55,6 +46,7 @@ const InputMessage = styled.input`
   border-radius: 20px;
   background-color: #fff;
 `;
+
 const SendButton = styled.button`
   margin-left: 10px;
   display: inline-block;
@@ -81,25 +73,25 @@ const Dialogue = ({
   id,
   token,
   phone,
+  messages,
 }: {
   id: string;
   token: string;
   phone: string;
+  messages: Message[];
 }) => {
   const [textMessage, setTextMessage] = useState("");
-  const [sendMessages, setSendMessages] = useState([]);
-  const [receivedMessage, setReceivedMessage] = useState([]);
+
   const handleSendMessage = async () => {
     const req = await sendMessage(id, token, phone, textMessage);
     console.log(req);
   };
+
   return (
     <Main>
       <DialogueBlock>
         <DialogueHeader>{phone}</DialogueHeader>
-        <MessagesWrapper>
-          <Messages></Messages>
-        </MessagesWrapper>
+        <Messages messages={messages}></Messages>
         <DialogueFooter>
           <InputMessage
             placeholder="Введите сообщение"

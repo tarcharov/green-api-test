@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import styled from "styled-components";
 import bg_img from "../assets/images/dialogue_background.png";
-
+import { Message } from "../utils/types";
 const Main = styled.div`
   box-sizing: border-box;
   display: flex;
@@ -18,33 +18,38 @@ const MessageWrapper = styled.div`
   align-items: flex-start;
   margin-bottom: 10px;
 `;
+const MessagesWrapper = styled.div`
+  display: block;
+  position: relative;
+  flex: 1 1 0;
+  order: 2;
+  background: url(${bg_img});
+`;
 
-const ReceivedMessage = styled.div`
+const Message = styled.div<{ sent: boolean }>`
   display: inline-block;
-  background-color: #f4f4f4;
+  background-color: ${(props) => (props.sent ? "#dcf8c6" : "#f4f4f4")};
+  margin-right: ${(props) => (props.sent ? "auto" : "none")};
+  margin-left: ${(props) => (props.sent ? "none" : "auto")};
   border-radius: 10px;
   padding: 10px;
-  margin-right: auto;
 `;
-const SendMessage = styled.div`
-  display: inline-block;
-  background-color: #dcf8c6;
-  border-radius: 10px;
-  padding: 10px;
-  margin-left: auto;
-`;
-const Messages = () => {
+
+type Props = {
+  messages: Message[];
+};
+
+const Messages: React.FC<Props> = ({ messages }) => {
   return (
     <Main>
-      <MessageWrapper>
-        <ReceivedMessage>test</ReceivedMessage>
-      </MessageWrapper>
-      <MessageWrapper>
-        <SendMessage>test2</SendMessage>
-      </MessageWrapper>
-      <MessageWrapper>
-        <SendMessage>test3</SendMessage>
-      </MessageWrapper>
+      <MessagesWrapper>
+        {messages.length > 0 &&
+          messages.map((message) => (
+            <MessageWrapper>
+              <Message sent={true}></Message>
+            </MessageWrapper>
+          ))}
+      </MessagesWrapper>
     </Main>
   );
 };

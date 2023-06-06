@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import bg_img from "../assets/images/dialogue_background.png";
-import { sendMessage } from "../utils/requests";
 import Chat from "./Chat";
 import Dialogue from "./Dialogue";
-import Messages from "./Messages";
-
+import { fetchMessages } from "../utils/requests";
+import { Message } from "../utils/types";
 const Main = styled.div`
   position: relative;
   top: 0;
@@ -68,7 +66,7 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
   const [inputPhone, setInputPhone] = useState("");
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState("");
   const [chats, setChats] = useState<ChatObj[]>([]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const handleCreateChat = () => {
     setChats((prev) => [...prev, { number: inputPhone }]);
     setInputPhone("");
@@ -77,6 +75,29 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
   const handleOpenChat = (phone: string) => {
     setSelectedPhoneNumber(phone);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchMessages(id, token);
+        const { receiptId, senderData, messageData } = data;
+        const { chatId, sender } = senderData;
+        const { textMessage } = messageData.textMessageData;
+        const newMessage: Message = {
+          receiptId,
+          senderData: { chatId, sender },
+          messageData: { textMessageData: { textMessage } },
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      } catch (error) {
+        console.error("Ошибка при получении сообщений:", error);
+      }
+    };
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [id, token]);
   return (
     <Main>
       <SideBar>
@@ -91,12 +112,22 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
         <Chats>
           {chats.length > 0 &&
             chats.map((chat) => (
-              <Chat handleOpenChat={handleOpenChat} phone={chat.number} />
+              <Chat
+                id={id}
+                token={token}
+                handleOpenChat={handleOpenChat}
+                phone={chat.number}
+              />
             ))}
         </Chats>
       </SideBar>
       {selectedPhoneNumber !== "" && (
-        <Dialogue id={id} token={token} phone={selectedPhoneNumber}></Dialogue>
+        <Dialogue
+          id={id}
+          token={token}
+          phone={selectedPhoneNumber}
+          messages={messages}
+        ></Dialogue>
       )}
     </Main>
   );
