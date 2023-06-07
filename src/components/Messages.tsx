@@ -28,9 +28,9 @@ const MessagesWrapper = styled.div`
 
 const MessageBlock = styled.div<{ sent: boolean }>`
   display: inline-block;
-  background-color: ${(props) => (props.sent ? "#dcf8c6" : "#f4f4f4")};
-  margin-right: ${(props) => (props.sent ? "auto" : "none")};
-  margin-left: ${(props) => (props.sent ? "none" : "auto")};
+  background-color: ${(props) => (!props.sent ? "#f4f4f4" : "#dcf8c6")};
+  margin-right: ${(props) => (!props.sent ? "auto" : "none")};
+  margin-left: ${(props) => (!props.sent ? "none" : "auto")};
   border-radius: 10px;
   padding: 10px;
 `;

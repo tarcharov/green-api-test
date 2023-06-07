@@ -85,7 +85,8 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
       try {
         const data = await fetchMessages(id, token);
         console.log(data);
-        const { receiptId, senderData, messageData } = data;
+        const { receiptId } = data;
+        const { senderData, messageData } = data.body;
         const { sender } = senderData;
         const { textMessage } = messageData.textMessageData;
         const newMessage: Message = {

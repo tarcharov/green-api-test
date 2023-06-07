@@ -86,7 +86,7 @@ const Dialogue: React.FC<Props> = ({
   const [textMessage, setTextMessage] = useState("");
 
   const handleSendMessage = async () => {
-    addNewMessage({ phone: phone, textMessage: textMessage, sent: false });
+    addNewMessage({ phone: phone, textMessage: textMessage, sent: true });
     await sendMessage(id, token, phone, textMessage);
   };
 
