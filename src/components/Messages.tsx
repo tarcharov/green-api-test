@@ -26,7 +26,7 @@ const MessagesWrapper = styled.div`
   background: url(${bg_img});
 `;
 
-const Message = styled.div<{ sent: boolean }>`
+const MessageBlock = styled.div<{ sent: boolean }>`
   display: inline-block;
   background-color: ${(props) => (props.sent ? "#dcf8c6" : "#f4f4f4")};
   margin-right: ${(props) => (props.sent ? "auto" : "none")};
@@ -35,20 +35,22 @@ const Message = styled.div<{ sent: boolean }>`
   padding: 10px;
 `;
 
-type Props = {
-  messages: Message[];
-};
+type Props = { phone: string; messages: Message[] };
 
-const Messages: React.FC<Props> = ({ messages }) => {
+const Messages: React.FC<Props> = ({ phone, messages }) => {
   return (
     <Main>
       <MessagesWrapper>
         {messages.length > 0 &&
-          messages.map((message) => (
-            <MessageWrapper>
-              <Message sent={true}></Message>
-            </MessageWrapper>
-          ))}
+          messages
+            .filter((message) => message.phone === phone)
+            .map((message) => (
+              <MessageWrapper>
+                <MessageBlock sent={message.sent}>
+                  {message.textMessage}
+                </MessageBlock>
+              </MessageWrapper>
+            ))}
       </MessagesWrapper>
     </Main>
   );

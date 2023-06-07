@@ -30,7 +30,7 @@ export const sendMessage = async (
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify({ chatId: `${phone}@c.us`, message: text }),
+      body: JSON.stringify({ chatId: phone, message: text }),
     }
   );
   const data = response.json();
@@ -40,11 +40,38 @@ export const sendMessage = async (
 export const fetchMessages = async (id: string, token: string) => {
   try {
     const response = await fetch(
-      `https://api.green-api.com/waInstance${id}/receiveNotification/${token}`
+      `https://api.green-api.com/waInstance${id}/receiveNotification/${token}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+        },
+      }
     );
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Ошибка при получении сообщений:", error);
+  }
+};
+
+export const deleteMessages = async (
+  id: string,
+  token: string,
+  msgId: number
+) => {
+  try {
+    const response = await fetch(
+      `https://api.green-api.com/waInstance${id}/deleteNotification/${token}/${msgId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+        },
+      }
+    );
+    console.log(response);
+  } catch (error) {
+    console.error("Ошибка при удалении сообщения:", error);
   }
 };

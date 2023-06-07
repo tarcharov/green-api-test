@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Messages from "./Messages";
 import { sendMessage } from "../utils/requests";
@@ -68,30 +68,33 @@ const SendButton = styled.button`
     background-color: #075e54;
   }
 `;
-
-const Dialogue = ({
-  id,
-  token,
-  phone,
-  messages,
-}: {
+type Props = {
   id: string;
   token: string;
   phone: string;
   messages: Message[];
+  addNewMessage: (message: Message) => void;
+};
+
+const Dialogue: React.FC<Props> = ({
+  id,
+  token,
+  phone,
+  messages,
+  addNewMessage,
 }) => {
   const [textMessage, setTextMessage] = useState("");
 
   const handleSendMessage = async () => {
-    const req = await sendMessage(id, token, phone, textMessage);
-    console.log(req);
+    addNewMessage({ phone: phone, textMessage: textMessage, sent: false });
+    await sendMessage(id, token, phone, textMessage);
   };
 
   return (
     <Main>
       <DialogueBlock>
         <DialogueHeader>{phone}</DialogueHeader>
-        <Messages messages={messages}></Messages>
+        <Messages messages={messages} phone={phone}></Messages>
         <DialogueFooter>
           <InputMessage
             placeholder="Введите сообщение"

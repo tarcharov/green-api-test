@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Chat from "./Chat";
 import Dialogue from "./Dialogue";
-import { fetchMessages } from "../utils/requests";
+import { deleteMessages, fetchMessages } from "../utils/requests";
 import { Message } from "../utils/types";
 const Main = styled.div`
   position: relative;
@@ -67,8 +67,9 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState("");
   const [chats, setChats] = useState<ChatObj[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
+
   const handleCreateChat = () => {
-    setChats((prev) => [...prev, { number: inputPhone }]);
+    setChats((prev) => [...prev, { number: `${inputPhone}@c.us` }]);
     setInputPhone("");
   };
 
@@ -76,19 +77,25 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
     setSelectedPhoneNumber(phone);
   };
 
+  const addNewMessage = (message: Message) => {
+    setMessages((prev) => [...prev, message]);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchMessages(id, token);
+        console.log(data);
         const { receiptId, senderData, messageData } = data;
-        const { chatId, sender } = senderData;
+        const { sender } = senderData;
         const { textMessage } = messageData.textMessageData;
         const newMessage: Message = {
-          receiptId,
-          senderData: { chatId, sender },
-          messageData: { textMessageData: { textMessage } },
+          phone: sender,
+          textMessage,
+          sent: false,
         };
-        setMessages((prev) => [...prev, newMessage]);
+        console.log("NewMessage: ", newMessage);
+        addNewMessage(newMessage);
+        await deleteMessages(id, token, receiptId);
       } catch (error) {
         console.error("Ошибка при получении сообщений:", error);
       }
@@ -96,8 +103,11 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
     fetchData();
     const intervalId = setInterval(fetchData, 5000);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [id, token]);
+
   return (
     <Main>
       <SideBar>
@@ -112,12 +122,7 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
         <Chats>
           {chats.length > 0 &&
             chats.map((chat) => (
-              <Chat
-                id={id}
-                token={token}
-                handleOpenChat={handleOpenChat}
-                phone={chat.number}
-              />
+              <Chat handleOpenChat={handleOpenChat} phone={chat.number} />
             ))}
         </Chats>
       </SideBar>
@@ -127,6 +132,7 @@ const ChatWindow = ({ id, token }: { id: string; token: string }) => {
           token={token}
           phone={selectedPhoneNumber}
           messages={messages}
+          addNewMessage={addNewMessage}
         ></Dialogue>
       )}
     </Main>
